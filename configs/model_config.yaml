@@ -1,169 +1,57 @@
 # TTC Security Attacks - Model Configuration
-# ==========================================
 
-# Process Reward Models (PRMs)
 prm_models:
   math_shepherd:
-    name: "peiyi9979/math-shepherd-mistral-7b-prm"
-    type: "step_level"
-    tokenizer: "same"
-    max_length: 2048
-    dtype: "float16"
-    device_map: "auto"
-    description: "Math-Shepherd PRM based on Mistral-7B"
-  
+    name: "math-shepherd-mistral-7b-prm"
+    type: "huggingface"
+    precision: "float16"
   skywork:
-    name: "Skywork/Skywork-o1-Open-PRM-Qwen-2.5-7B"
-    type: "step_level"
-    tokenizer: "same"
-    max_length: 4096
-    dtype: "float16"
-    device_map: "auto"
-    description: "Skywork PRM based on Qwen-2.5-7B"
-  
-  openai_prm:
-    name: "openai/prm"
-    type: "api"
-    api_version: "v1"
-    description: "OpenAI PRM via API (if available)"
+    name: "Skywork-o1-Open-PRM-Qwen-2.5-7B"
+    type: "huggingface"
+    precision: "float16"
 
-
-# Target Models for Self-Consistency
 target_models:
   gpt4:
     name: "gpt-4"
-    type: "api"
-    provider: "openai"
-    max_tokens: 2048
-    description: "GPT-4 via OpenAI API"
-  
+    api: "openai"
   gpt4o:
     name: "gpt-4o"
-    type: "api"
-    provider: "openai"
-    max_tokens: 4096
-    description: "GPT-4o via OpenAI API"
-  
-  claude3:
-    name: "claude-3-sonnet-20240229"
-    type: "api"
-    provider: "anthropic"
-    max_tokens: 4096
-    description: "Claude 3 Sonnet via Anthropic API"
-  
-  claude35:
-    name: "claude-3-5-sonnet-20241022"
-    type: "api"
-    provider: "anthropic"
-    max_tokens: 8192
-    description: "Claude 3.5 Sonnet via Anthropic API"
-  
-  llama3_8b:
+    api: "openai"
+  claude:
+    name: "claude-3-sonnet"
+    api: "anthropic"
+  llama:
     name: "meta-llama/Llama-3.1-8B-Instruct"
-    type: "local"
-    dtype: "float16"
-    device_map: "auto"
-    max_length: 8192
-    description: "LLaMA 3.1 8B Instruct"
-  
-  llama3_70b:
-    name: "meta-llama/Llama-3.1-70B-Instruct"
-    type: "local"
-    dtype: "float16"
-    device_map: "auto"
-    max_length: 8192
-    description: "LLaMA 3.1 70B Instruct"
-  
-  deepseek_r1:
+    type: "huggingface"
+  deepseek:
     name: "deepseek-ai/DeepSeek-R1"
-    type: "api"
-    provider: "deepseek"
-    max_tokens: 8192
-    description: "DeepSeek-R1 reasoning model"
+    type: "huggingface"
 
-
-# MCTS Systems
 mcts_systems:
   mctsr:
-    name: "MCTSr"
-    implementation: "custom"
-    value_network: "default"
-    policy_network: "default"
-    paper: "Zhang et al. 2024"
-    description: "Monte Carlo Tree Search for Reasoning"
-  
-  sc_mcts_star:
-    name: "SC-MCTS*"
-    implementation: "custom"
-    value_network: "default"
-    policy_network: "default"
-    paper: "Zhou et al. 2024"
-    description: "Self-Consistency MCTS Star"
-  
+    type: "mctsr"
+    config_path: "./configs/mctsr.yaml"
   lats:
-    name: "LATS"
-    implementation: "langchain"
-    value_network: "llm_based"
-    policy_network: "llm_based"
-    paper: "Zhou et al. 2024 ICML"
-    description: "Language Agent Tree Search"
+    type: "lats"
+    config_path: "./configs/lats.yaml"
 
-
-# Defense Models
 defense_models:
   prime:
-    name: "PRIME"
-    type: "implicit_prm"
-    paper: "Wang et al. 2025"
-    description: "Process Reinforcement through Implicit Rewards"
-  
+    name: "prime_defense"
+    base_model: "Qwen2.5-Math-7B-Base"
   pure:
-    name: "PURE"
-    type: "min_form"
-    paper: "Jia et al. 2025"
-    description: "Min-form Credit Assignment for PRMs"
-  
+    name: "pure_defense"
+    base_model: "Qwen2.5-Math-7B"
   cra:
-    name: "CRA"
-    type: "causal"
-    paper: "Anonymous 2025"
-    description: "Causal Reward Adjustment via SAE"
+    name: "cra_defense"
+    prm_model: "math-shepherd-mistral-7b-prm"
 
-
-# Model Loading Settings
-loading:
-  # Default settings
-  default_dtype: "float16"
-  default_device_map: "auto"
-  
-  # Memory optimization
-  use_flash_attention: true
-  use_gradient_checkpointing: false
-  
-  # Quantization (optional)
-  quantization:
-    enabled: false
-    bits: 8
-    method: "bitsandbytes"
-  
-  # Caching
-  cache_dir: "~/.cache/huggingface/hub"
-  use_auth_token: true
-
-
-# API Settings
-api:
+api_settings:
   openai:
-    base_url: null  # Use default
+    base_url: "https://api.openai.com/v1"
     timeout: 60
     max_retries: 3
-  
   anthropic:
-    base_url: null
+    base_url: "https://api.anthropic.com"
     timeout: 60
-    max_retries: 3
-  
-  deepseek:
-    base_url: "https://api.deepseek.com/v1"
-    timeout: 120
     max_retries: 3

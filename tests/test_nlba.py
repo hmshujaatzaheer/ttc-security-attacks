@@ -1,129 +1,63 @@
-"""
-Tests for Natural Language Blindness Attack (NLBA)
-"""
-
-import pytest
+"""Unit tests for NLBA attack."""
+import unittest
 import sys
-from pathlib import Path
+sys.path.insert(0, '.')
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+from src.attacks import NLBAAttack, NLBAConfig
+from src.attacks.base_attack import AttackStatus
 
-from attacks import NLBAAttack, AttackResult
-
-
-class TestNLBAAttack:
-    """Test suite for NLBA attack."""
+class TestNLBAAttack(unittest.TestCase):
+    """Test cases for Natural Language Blindness Attack."""
     
-    def test_initialization(self):
-        """Test attack initialization."""
-        attack = NLBAAttack(verbose=False)
-        assert attack.name == "NLBA"
-        assert attack.config is not None
-    
-    def test_validate_inputs_valid(self):
-        """Test input validation with valid inputs."""
-        attack = NLBAAttack(verbose=False)
-        result = attack._validate_inputs(
-            problem="What is 2 + 2?",
-            correct_answer="4",
-            target_wrong_answer="5"
+    def setUp(self):
+        """Set up test fixtures."""
+        self.config = NLBAConfig(
+            prm_model_name="mock-prm",
+            max_iterations=10,
+            num_candidates=3,
+            seed=42
         )
-        assert result is True
+        self.attack = NLBAAttack(self.config)
     
-    def test_validate_inputs_empty_problem(self):
-        """Test input validation with empty problem."""
-        attack = NLBAAttack(verbose=False)
-        with pytest.raises(ValueError, match="Problem statement cannot be empty"):
-            attack._validate_inputs(
-                problem="",
-                correct_answer="4",
-                target_wrong_answer="5"
-            )
+    def test_attack_initialization(self):
+        """Test attack initializes correctly."""
+        self.assertEqual(self.attack.config.name, "nlba_attack")
+        self.assertFalse(self.attack._is_setup)
     
-    def test_validate_inputs_same_answers(self):
-        """Test input validation when answers are the same."""
-        attack = NLBAAttack(verbose=False)
-        with pytest.raises(ValueError, match="Target wrong answer must differ"):
-            attack._validate_inputs(
-                problem="What is 2 + 2?",
-                correct_answer="4",
-                target_wrong_answer="4"
-            )
+    def test_attack_setup(self):
+        """Test attack setup works."""
+        self.attack.setup()
+        self.assertTrue(self.attack._is_setup)
+        self.assertIsNotNone(self.attack.prm_scorer)
     
-    def test_extract_math_expressions(self):
-        """Test mathematical expression extraction."""
-        attack = NLBAAttack(verbose=False)
-        expressions = attack._extract_math_expressions(
-            problem="Calculate 15% of 200",
-            correct_answer="30"
+    def test_attack_execution(self):
+        """Test basic attack execution."""
+        result = self.attack.attack(
+            "Solve: 2x + 5 = 15",
+            target="x = 10"
         )
-        assert len(expressions) > 0
-        assert "= 30" in expressions
+        self.assertIsNotNone(result)
+        self.assertIn(result.status, [AttackStatus.SUCCESS, AttackStatus.FAILURE])
+        self.assertIn("prm_score", result.metrics)
     
-    def test_construct_deceptive_trace(self):
-        """Test deceptive trace construction."""
-        attack = NLBAAttack(verbose=False)
-        trace = attack._construct_deceptive_trace(
-            problem="What is 2 + 2?",
-            math_expressions=["2 + 2", "= 4"],
-            target_answer="5"
-        )
-        assert len(trace) > 0
-        assert "5" in trace[-1]
+    def test_batch_attack(self):
+        """Test batch attack functionality."""
+        inputs = [
+            "Solve: x + 5 = 10",
+            "What is 10% of 50?",
+        ]
+        results = self.attack.batch_attack(inputs)
+        self.assertEqual(len(results), 2)
     
-    def test_attack_result_structure(self):
-        """Test attack result structure."""
-        result = AttackResult(
-            success=True,
-            problem="What is 2 + 2?",
-            target_answer="5",
-            achieved_answer="5",
-            prm_score=0.85
-        )
-        
-        assert result.success is True
-        assert result.prm_score == 0.85
-        
-        result_dict = result.to_dict()
-        assert "success" in result_dict
-        assert "prm_score" in result_dict
+    def test_attack_statistics(self):
+        """Test statistics tracking."""
+        self.attack.attack("Test problem")
+        stats = self.attack.get_statistics()
+        self.assertEqual(stats["total_attempts"], 1)
     
-    def test_statistics_tracking(self):
-        """Test attack statistics tracking."""
-        attack = NLBAAttack(verbose=False)
-        
-        # Reset stats
-        attack.reset_statistics()
-        
-        stats = attack.get_statistics()
-        assert stats["total_attacks"] == 0
-        assert stats["success_rate"] == 0.0
+    def tearDown(self):
+        """Clean up after tests."""
+        self.attack.cleanup()
 
-
-class TestAttackStrategies:
-    """Test different attack strategies."""
-    
-    def test_nl_blindness_strategy(self):
-        """Test NL-blindness attack strategy."""
-        attack = NLBAAttack(verbose=False)
-        
-        # Mock test - actual attack requires model loading
-        # This tests the strategy selection logic
-        assert "nl_blindness" in ["nl_blindness", "ood_difficulty", "gradient_injection"]
-    
-    def test_strategy_validation(self):
-        """Test that invalid strategies raise errors."""
-        attack = NLBAAttack(verbose=False)
-        
-        with pytest.raises(ValueError, match="Unknown strategy"):
-            attack._nl_blindness_attack = lambda *args, **kwargs: None
-            attack._ood_difficulty_attack = lambda *args, **kwargs: None
-            attack._gradient_injection_attack = lambda *args, **kwargs: None
-            
-            # This would fail in actual implementation
-            # attack.attack(..., strategy="invalid_strategy")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+if __name__ == '__main__':
+    unittest.main()

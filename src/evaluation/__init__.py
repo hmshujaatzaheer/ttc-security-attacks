@@ -1,14 +1,6 @@
-"""
-TTC Security Attacks - Evaluation Module
+"""TTC Security - Evaluation Framework"""
+from .ttc_sec_benchmark import TTCSecBenchmark, BenchmarkConfig, BenchmarkResult
+from .metrics import AttackMetrics, compute_asr
+from .visualization import plot_results
 
-This module provides the TTC-Sec benchmark and evaluation metrics.
-"""
-
-from .ttc_sec_benchmark import TTCSecBenchmark, BenchmarkResult, BenchmarkConfig, compute_metrics
-
-__all__ = [
-    "TTCSecBenchmark",
-    "BenchmarkResult",
-    "BenchmarkConfig",
-    "compute_metrics",
-]
+__all__ = ["TTCSecBenchmark", "BenchmarkConfig", "BenchmarkResult", "AttackMetrics", "compute_asr", "plot_results"]

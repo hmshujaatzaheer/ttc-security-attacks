@@ -1,135 +1,49 @@
 # TTC Security Attacks - Attack Configuration
-# =============================================
 
-# Natural Language Blindness Attack (NLBA)
 nlba:
-  # PRM score threshold for successful attack
+  name: "Natural Language Blindness Attack"
   prm_threshold: 0.8
-  
-  # Maximum iterations for attack optimization
   max_iterations: 100
-  
-  # Gradient injection settings (white-box)
   gradient_steps: 50
   learning_rate: 0.01
-  
-  # Sampling settings
-  temperature: 0.7
-  top_p: 0.9
-  
-  # Trace construction
-  max_trace_length: 10
-  
-  # Strategy-specific settings
+  num_candidates: 10
   strategies:
-    nl_blindness:
-      enabled: true
-      use_templates: true
-      num_templates: 5
-    
-    ood_difficulty:
-      enabled: true
-      difficulty_multiplier: 2.0
-      complexity_injection: true
-    
-    gradient_injection:
-      enabled: true
-      requires_whitebox: true
-      embedding_optimization: true
+    - nl_blindness
+    - ood_difficulty
+    - gradient_injection
 
-
-# Single-Model Voting Attack (SMVA)
 smva:
-  # Number of samples for self-consistency
+  name: "Single-Model Voting Attack"
   num_samples: 40
-  
-  # Sampling parameters
   temperature: 0.7
-  top_p: 0.9
-  
-  # Bias injection strength (0-1)
   bias_strength: 0.3
-  
-  # Adaptive self-consistency threshold
-  adaptive_threshold: 0.6
-  
-  # Maximum attempts for bias injection
-  max_bias_attempts: 10
-  
-  # Parse exploitation variations
-  parse_variations: 5
-  
-  # Strategy-specific settings
+  diversity_threshold: 0.6
+  adaptive_threshold: 0.7
   strategies:
-    sampling_bias:
-      enabled: true
-      progressive_strength: true
-      max_strength: 0.8
-    
-    parse_exploit:
-      enabled: true
-      exploit_templates: 5
-    
-    early_stop:
-      enabled: true
-      min_samples: 5
+    - sampling_bias
+    - parse_exploit
+    - early_stop
 
-
-# MCTS Value Network Attack (MVNA)
 mvna:
-  # UCT exploration constant
+  name: "MCTS Value Network Attack"
   exploration_constant: 1.414
-  
-  # Maximum search depth
   max_depth: 20
-  
-  # Number of MCTS simulations
   num_simulations: 100
-  
-  # Value network threshold for blind spot detection
-  value_threshold: 0.5
+  value_threshold: 0.7
   blind_spot_threshold: 0.3
-  
-  # Tree expansion factor
-  expansion_factor: 4
-  
-  # Search temperature
-  temperature: 1.0
-  
-  # Strategy-specific settings
   strategies:
-    value_fooling:
-      enabled: true
-      max_blind_spots: 20
-      path_construction: "greedy"
-    
-    uct_manipulation:
-      enabled: true
-      novelty_boost: true
-      prior_inflation: 0.9
-    
-    expansion_bias:
-      enabled: true
-      bias_propagation: true
+    - value_fooling
+    - uct_manipulation
+    - expansion_bias
 
-
-# Global settings
 global:
-  # Random seed for reproducibility
   seed: 42
-  
-  # Device settings
-  device: "auto"  # "cuda", "cpu", or "auto"
-  
-  # Logging
-  log_level: "INFO"
-  log_to_file: true
-  log_file: "logs/attacks.log"
-  
-  # Caching
-  cache_enabled: true
-  cache_dir: ".cache"
-  
-  # Timeouts
-  attack_timeout: 300  # seconds
-  api_timeout: 60  # seconds
+  device: "auto"
+  verbose: true
+  save_artifacts: true
+  output_dir: "./results"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "attack_log.txt"

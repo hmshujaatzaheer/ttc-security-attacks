@@ -1,0 +1,40 @@
+# TTC-Sec Benchmark Configuration
+
+benchmark:
+  name: "TTC-Sec v1.0"
+  version: "1.0.0"
+  
+components:
+  prm_adv:
+    enabled: true
+    dataset_size: 100
+    attacks: ["nlba"]
+    strategies: ["nl_blindness", "ood_difficulty", "gradient_injection"]
+  sc_adv:
+    enabled: true
+    dataset_size: 100
+    attacks: ["smva"]
+    strategies: ["sampling_bias", "parse_exploit", "early_stop"]
+  mcts_adv:
+    enabled: true
+    dataset_size: 100
+    attacks: ["mvna"]
+    strategies: ["value_fooling", "uct_manipulation", "expansion_bias"]
+
+evaluation:
+  metrics:
+    - attack_success_rate
+    - score_inflation
+    - vote_flip_rate
+    - path_deviation
+  defense_evaluation: true
+  defenses: ["prime", "pure", "cra"]
+
+output:
+  directory: "./results/benchmark"
+  formats: ["json", "csv", "markdown"]
+  save_artifacts: true
+
+reproducibility:
+  seed: 42
+  deterministic: true

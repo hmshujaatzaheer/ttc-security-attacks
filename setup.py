@@ -1,9 +1,5 @@
-"""
-TTC Security Attacks - Package Setup
-
-Install with: pip install -e .
-"""
-
+#!/usr/bin/env python3
+"""Setup script for TTC Security Attacks."""
 from setuptools import setup, find_packages
 from pathlib import Path
 
@@ -13,14 +9,13 @@ long_description = readme_path.read_text(encoding="utf-8") if readme_path.exists
 
 # Read requirements
 requirements_path = Path(__file__).parent / "requirements.txt"
+requirements = []
 if requirements_path.exists():
     requirements = [
         line.strip() 
-        for line in requirements_path.read_text().split("\n")
+        for line in requirements_path.read_text().splitlines() 
         if line.strip() and not line.startswith("#")
     ]
-else:
-    requirements = []
 
 setup(
     name="ttc-security-attacks",
@@ -35,6 +30,8 @@ setup(
         "Bug Tracker": "https://github.com/hmshujaatzaheer/ttc-security-attacks/issues",
         "Documentation": "https://github.com/hmshujaatzaheer/ttc-security-attacks#readme",
     },
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
@@ -47,29 +44,36 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Security",
     ],
-    package_dir={"": "src"},
-    packages=find_packages(where="src"),
     python_requires=">=3.10",
-    install_requires=requirements,
+    install_requires=[
+        "torch>=2.0.0",
+        "transformers>=4.35.0",
+        "numpy>=1.24.0",
+        "pyyaml>=6.0",
+        "tqdm>=4.65.0",
+    ],
     extras_require={
         "dev": [
             "pytest>=7.3.0",
-            "pytest-cov>=4.1.0",
-            "black>=23.0.0",
-            "isort>=5.12.0",
-            "flake8>=6.0.0",
+            "pytest-cov>=4.0.0",
+            "black>=23.3.0",
             "mypy>=1.3.0",
+        ],
+        "viz": [
+            "matplotlib>=3.7.0",
+            "seaborn>=0.12.0",
         ],
         "notebooks": [
             "jupyter>=1.0.0",
-            "ipywidgets>=8.0.0",
+            "ipykernel>=6.22.0",
         ],
     },
     entry_points={
         "console_scripts": [
-            "ttc-attack=scripts.run_benchmark:main",
+            "ttc-nlba=scripts.run_nlba:main",
+            "ttc-smva=scripts.run_smva:main",
+            "ttc-mvna=scripts.run_mvna:main",
+            "ttc-benchmark=scripts.run_benchmark:main",
         ],
     },
-    include_package_data=True,
-    zip_safe=False,
 )

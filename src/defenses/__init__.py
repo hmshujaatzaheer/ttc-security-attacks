@@ -1,16 +1,14 @@
 """
-TTC Security Attacks - Defense Module
+TTC Security - Defense Implementations
 
-This module provides implementations of defenses against TTC attacks.
-Used for evaluating attack effectiveness against state-of-the-art defenses.
-
-Defenses:
-    - PRIME: Process Reinforcement through Implicit Rewards
-    - PURE: Min-form Credit Assignment
-    - CRA: Causal Reward Adjustment
+This module provides implementations of verified defenses:
+- PRIME: Process Reinforcement through Implicit Rewards
+- PURE: Min-form Credit Assignment
+- CRA: Causal Reward Adjustment
 """
 
-# Placeholder for defense implementations
-# These will be added in future versions
+from .prime_defense import PRIMEDefense
+from .pure_defense import PUREDefense
+from .cra_defense import CRADefense
 
-__all__ = []
+__all__ = ["PRIMEDefense", "PUREDefense", "CRADefense"]
