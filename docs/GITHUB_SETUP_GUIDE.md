@@ -48,7 +48,7 @@ Description: Mechanistic Attacks on Test-Time Compute: Exploiting Step-Level Ver
 
 First, you need to download the repository files I created. You have two options:
 
-### Option A: If you have the files from Claude
+### Option A: If you have the files
 Copy all the files to a folder on your computer, for example:
 ```
 C:\Users\YourName\Projects\ttc-security-attacks
